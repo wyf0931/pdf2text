@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF to TEXT (Free!)</title>
+    <link href="static/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="text-center py-5">
+            <h1>PDF to TEXT (Free!)</h1>
+        </header>
+        <!-- Body -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <!-- Form -->
+                <form id="pdfForm" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <input class="form-control" type="file" name="file" id="file">
+                    </div>
+                </form>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-primary" id="convertBtn">提取</button>
+            </div>
+        </div>
+        <div class="row justify-content-center" id="block-copy" style="display:none;">
+            <div class="col-md-6"></div>
+            <div class="col-md-2">
+                <button class="btn btn-info" id="copyBtn">复制</button>
+            </div>
+        </div>
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-8">
+                <!-- Display result -->
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="static/js/jquery.min.js"></script>
+    <script>
+        $(document).ready(function(){
+
+            $('#copyBtn').click(function(){
+                // Select the content of #result
+                var resultContent = $('#result').text();
+                var tempInput = $('<textarea>');
+                $('body').append(tempInput);
+                tempInput.val(resultContent).select();
+                
+                // Copy the selected content to clipboard
+                document.execCommand('copy');
+                
+                // Remove the temporary input
+                tempInput.remove();
+                
+                // Show a message indicating that the content is copied
+                alert('Content copied to clipboard');
+            });
+
+            // Convert button click event
+            $('#convertBtn').click(function(){
+                // Disable the button
+                $(this).prop('disabled', true);
+
+                var formData = new FormData($('#pdfForm')[0]);
+                $.ajax({
+                    url: '/api/pdf2txt',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response){
+                        $('#result').html('<pre>' + response.data + '</pre>');
+                        $('#block-copy').show();
+                    },
+                    error: function(xhr, status, error){
+                        console.error(error);
+                        $('#result').html('<div class="alert alert-danger" role="alert">Error converting PDF to text. Please try again later.</div>');
+                    },
+                    complete: function(){
+                        // Re-enable the button after request completion
+                        $('#convertBtn').prop('disabled', false);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
