@@ -12,7 +12,7 @@ WORKDIR /app
 COPY requirements.txt .
 
 # 安装 Python 依赖
-RUN python -m pip install --upgrade pip
+# RUN python -m pip install --upgrade pip
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
 RUN pip install --no-cache-dir -r requirements.txt
 
