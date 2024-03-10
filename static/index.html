@@ -26,10 +26,17 @@
                 <button class="btn btn-primary" id="convertBtn">提取</button>
             </div>
         </div>
-        <div class="row justify-content-center" id="block-copy" style="display:none;">
-            <div class="col-md-6"></div>
+        
+        <!-- <div id="progress-bar" style="width: 0%; background-color: #5cb85c;"></div> -->
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="progress">
+                    <div id="task-progress" class="progress-bar" role="progressbar" style="width: 0%; background-color: #5cb85c;"></div>
+                </div>
+                <p id="progress-label"></p>
+            </div>
             <div class="col-md-2">
-                <button class="btn btn-info" id="copyBtn">复制</button>
+                <button class="btn btn-info" id="copyBtn" style="display: none;">复制</button>
             </div>
         </div>
         <div class="row justify-content-center mt-4">
@@ -68,15 +75,40 @@
                 $(this).prop('disabled', true);
 
                 var formData = new FormData($('#pdfForm')[0]);
+                // formData.append('filename', $('#pdfInput').prop('files')[0].name); // 添加文件名字段
                 $.ajax({
-                    url: '/api/pdf2txt',
+                    url: '/api/task/create',
                     type: 'POST',
                     data: formData,
                     processData: false,
                     contentType: false,
                     success: function(response){
-                        $('#result').html('<pre>' + response.data + '</pre>');
-                        $('#block-copy').show();
+                        // $('#block-copy').show();
+                        var task_id = response.hash;
+                        // 开始轮询进度
+                        var interval = setInterval(function(){
+                            $.get('/api/task/info?id='+task_id, function(data){
+                                $('#task-progress').css('width', data.progress + '%');
+                                $('#progress-label').text('Progress: ' + data.progress + '%');
+
+                                if (data.status == 10) {
+                                    clearInterval(interval);  // 停止轮询
+                                    // 完成后显示数据
+                                    $('#progress-label').text('Progress: Done!');
+                                    // $('#progress-label').append('<br>Data: ' + data['data']);
+                                    var html_code = '<pre>';
+                                    for(var page of data.pages) {
+                                        html_code += page.page_content;
+                                    }
+                                    html_code += '</pre>';
+
+                                    $('#result').html(html_code);
+                                    $('#copyBtn').show();
+                                }
+                            });
+                        }, 1000); // 1秒轮询一次
+
+                        
                     },
                     error: function(xhr, status, error){
                         console.error(error);
