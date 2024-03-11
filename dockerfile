@@ -23,4 +23,5 @@ COPY . .
 EXPOSE 8888
 
 # 启动应用
-CMD ["python", "app.py"]
+# CMD ["python", "app.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:8888", "app:app"]

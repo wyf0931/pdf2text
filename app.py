@@ -218,4 +218,4 @@ if __name__ == '__main__':
     thread.start()
     app.logger.info('background task thread start success.')
 
-    app.run(debug=False, port=8888, host='0.0.0.0')
+    app.run()
