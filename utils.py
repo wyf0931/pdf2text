@@ -1,7 +1,7 @@
 from PyPDF2 import PdfReader
 import fitz
-import pytesseract
-import pdf2image
+# import pytesseract
+# import pdf2image
 from flask import current_app
 import os
 
@@ -56,34 +56,34 @@ def is_scanned_pdf(pdf_path):
 
     return scanned
 
-def extract_text_from_std_pdf(pdf_path):
-    try:
-        with open(pdf_path, 'rb') as file:
-            pdf_reader = PdfReader(file)
-            for page_num in range(len(pdf_reader.pages)):
-                page = pdf_reader.pages[page_num]
-                text = page.extract_text()
-                if text.strip():  # If extracted text is not empty, it's likely not scanned
-                    return False
-    except Exception as e:
-        print(f"Error: {e}")
+# def extract_text_from_std_pdf(pdf_path):
+#     try:
+#         with open(pdf_path, 'rb') as file:
+#             pdf_reader = PdfReader(file)
+#             for page_num in range(len(pdf_reader.pages)):
+#                 page = pdf_reader.pages[page_num]
+#                 text = page.extract_text()
+#                 if text.strip():  # If extracted text is not empty, it's likely not scanned
+#                     return False
+#     except Exception as e:
+#         print(f"Error: {e}")
 
 
-# 从扫描的pdf文件中提取文本内容
-def extract_text_from_scanned_pdf(pdf_path):
+# # 从扫描的pdf文件中提取文本内容
+# def extract_text_from_scanned_pdf(pdf_path):
 
-    # Convert PDF to a list of images
-    images = pdf2image.convert_from_path(pdf_path)
+#     # Convert PDF to a list of images
+#     images = pdf2image.convert_from_path(pdf_path)
     
-    # Initialize an empty string to store text
-    extracted_text = ''
+#     # Initialize an empty string to store text
+#     extracted_text = ''
     
-    # Loop through images and apply OCR
-    for image in images:
-        text = pytesseract.image_to_string(image, lang='chi_sim+eng')
-        extracted_text += text + '\n'  # Separate text from different images with a newline
+#     # Loop through images and apply OCR
+#     for image in images:
+#         text = pytesseract.image_to_string(image, lang='chi_sim+eng')
+#         extracted_text += text + '\n'  # Separate text from different images with a newline
 
-    return extracted_text
+#     return extracted_text
 
 
 def get_file_path(pdf_hash):
