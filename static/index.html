@@ -5,16 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF to TEXT (Free!)</title>
     <link href="static/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .row {
+            margin-top: 1rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <header class="text-center py-5">
-            <h1>PDF to TEXT (Free!)</h1>
+            <h1 class="display-sm-4 display-lg-1">PDF to TEXT (Free!)</h1>
         </header>
         <!-- Body -->
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <!-- Form -->
                 <form id="pdfForm" enctype="multipart/form-data">
                     <div class="mb-3">
@@ -22,30 +27,32 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-primary" id="convertBtn">提取</button>
+            <div class="col-md-3">
+                <button class="btn btn-primary btn-block" id="convertBtn">Extract Text</button>
             </div>
         </div>
         
-        <!-- <div id="progress-bar" style="width: 0%; background-color: #5cb85c;"></div> -->
+        <!-- Progress Bar -->
         <div class="row justify-content-center">
-            <div class="col-md-6">
+            <div class="col-md-7">
                 <div class="progress">
                     <div id="task-progress" class="progress-bar" role="progressbar" style="width: 0%; background-color: #5cb85c;"></div>
                 </div>
                 <p id="progress-label"></p>
             </div>
-            <div class="col-md-2">
-                <button class="btn btn-info" id="copyBtn" style="display: none;">复制</button>
+            <div class="col-md-3">
+                <button class="btn btn-info btn-block" id="copyBtn" style="display: none;">Copy Text</button>
             </div>
         </div>
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8">
-                <!-- Display result -->
+        
+        <!-- Display Result -->
+        <div class="row justify-content-center">
+            <div class="col-md-10">
                 <div id="result"></div>
             </div>
         </div>
     </div>
+    
 
     <!-- jQuery -->
     <script src="static/js/jquery.min.js"></script>
@@ -59,23 +66,23 @@
                 $('body').append(tempInput);
                 tempInput.val(resultContent).select();
                 
-                // Copy the selected content to clipboard
                 document.execCommand('copy');
-                
-                // Remove the temporary input
                 tempInput.remove();
                 
-                // Show a message indicating that the content is copied
-                alert('Content copied to clipboard');
+                alert('Copied to clipboard!');
             });
 
             // Convert button click event
             $('#convertBtn').click(function(){
-                // Disable the button
                 $(this).prop('disabled', true);
+                $(this).text('Uploading...');
+                $('#result').empty();
+
+                $('#task-progress').css('width', '0%');
+                $('#progress-label').text('');
+                $('#copyBtn').hide();
 
                 var formData = new FormData($('#pdfForm')[0]);
-                // formData.append('filename', $('#pdfInput').prop('files')[0].name); // 添加文件名字段
                 $.ajax({
                     url: '/api/task/create',
                     type: 'POST',
@@ -95,10 +102,15 @@
                                     clearInterval(interval);  // 停止轮询
                                     // 完成后显示数据
                                     $('#progress-label').text('Progress: Done!');
-                                    // $('#progress-label').append('<br>Data: ' + data['data']);
                                     var html_code = '<pre>';
                                     for(var page of data.pages) {
-                                        html_code += page.page_content;
+                                        var card = `<div class="card" style="margin-top:1rem;">
+                                            <div class="card-body">
+                                                    <h6 class="card-subtitle text-muted">PageNo:${page.page_num}</h6>
+                                                    <p class="card-text" style="word-wrap: break-word;">${page.page_content}</p>
+                                                </div>
+                                            </div>`
+                                        html_code += card;
                                     }
                                     html_code += '</pre>';
 
@@ -117,6 +129,7 @@
                     complete: function(){
                         // Re-enable the button after request completion
                         $('#convertBtn').prop('disabled', false);
+                        $('#convertBtn').text('Extract Text');
                     }
                 });
             });

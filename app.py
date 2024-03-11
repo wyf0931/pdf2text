@@ -42,60 +42,60 @@ def log_request_time(func):
 # Define a function to convert PDF to images and then apply OCR to extract text
 
 
-def pdf_to_text(pdf_path: str):
-    # Convert PDF to a list of images
-    images = pdf2image.convert_from_path(pdf_path)
+# def pdf_to_text(pdf_path: str):
+#     # Convert PDF to a list of images
+#     images = pdf2image.convert_from_path(pdf_path)
 
-    # Initialize an empty string to store text
-    extracted_text = ''
+#     # Initialize an empty string to store text
+#     extracted_text = ''
 
-    # Loop through images and apply OCR
-    for image in images:
-        text = pytesseract.image_to_string(image, lang='chi_sim+eng')
-        extracted_text += text + '\n'  # Separate text from different images with a newline
+#     # Loop through images and apply OCR
+#     for image in images:
+#         text = pytesseract.image_to_string(image, lang='chi_sim+eng')
+#         extracted_text += text + '\n'  # Separate text from different images with a newline
 
-    return extracted_text
+#     return extracted_text
 
 
-@app.route('/api/pdf2txt', methods=['POST'])
-@log_request_time
-def upload_pdf():
-    # Check if the post request has the file part
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file part'}), 400
+# @app.route('/api/pdf2txt', methods=['POST'])
+# @log_request_time
+# def upload_pdf():
+#     # Check if the post request has the file part
+#     if 'file' not in request.files:
+#         return jsonify({'error': 'No file part'}), 400
 
-    file = request.files['file']
+#     file = request.files['file']
 
-    # If user does not select file, browser also
-    # submit an empty part without filename
-    if file.filename == '':
-        return jsonify({'error': 'No selected file'}), 400
+#     # If user does not select file, browser also
+#     # submit an empty part without filename
+#     if file.filename == '':
+#         return jsonify({'error': 'No selected file'}), 400
 
-    if file:
-        # Create a temporary directory to store the uploaded file
-        temp_dir = tempfile.mkdtemp()
+#     if file:
+#         # Create a temporary directory to store the uploaded file
+#         temp_dir = tempfile.mkdtemp()
 
-        # Generate a unique filename using MD5 hash of the PDF content
-        pdf_content = file.read()
-        pdf_hash = hashlib.md5(pdf_content).hexdigest()
-        filename = f"{pdf_hash}.pdf"
-        pdf_path = os.path.join(temp_dir, filename)
+#         # Generate a unique filename using MD5 hash of the PDF content
+#         pdf_content = file.read()
+#         pdf_hash = hashlib.md5(pdf_content).hexdigest()
+#         filename = f"{pdf_hash}.pdf"
+#         pdf_path = os.path.join(temp_dir, filename)
 
-        # Save the uploaded file to the temporary directory
-        file.seek(0)  # Reset file pointer to beginning before saving
-        file.save(pdf_path)
+#         # Save the uploaded file to the temporary directory
+#         file.seek(0)  # Reset file pointer to beginning before saving
+#         file.save(pdf_path)
 
-        # Convert the uploaded PDF to text
-        extracted_text = pdf_to_text(pdf_path)
+#         # Convert the uploaded PDF to text
+#         extracted_text = pdf_to_text(pdf_path)
 
-        # Remove the temporary directory and file
-        os.remove(pdf_path)
-        os.rmdir(temp_dir)
+#         # Remove the temporary directory and file
+#         os.remove(pdf_path)
+#         os.rmdir(temp_dir)
 
-        return jsonify({
-            'code': 0,
-            'data': extracted_text
-        })
+#         return jsonify({
+#             'code': 0,
+#             'data': extracted_text
+#         })
 
 
 @app.route('/')
@@ -123,8 +123,9 @@ def create_task():
         filename = f"{pdf_hash}.pdf"
         pdf_path = os.path.join(temp_dir, filename)
 
-        file.seek(0)
-        file.save(pdf_path)
+        if not os.path.exists(pdf_path):
+            file.seek(0)
+            file.save(pdf_path)
 
         # save pdf
         if not Pdf.get_by_hash(pdf_hash):
@@ -181,8 +182,6 @@ def task_info():
         })
 
 
-
-
 def background_task():
     with app.app_context():
         while(True):
@@ -194,7 +193,7 @@ def background_task():
                     app.logger.info('task process finish.')
                 else:
                     app.logger.info('No task found. Waiting for new tasks...')
-                time.sleep(1)
+                time.sleep(3)
             except Exception as e:
                 app.logger.error(f'An exception occurred: {e}')
                 time.sleep(5)
