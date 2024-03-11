@@ -56,6 +56,19 @@ def is_scanned_pdf(pdf_path):
 
     return scanned
 
+def extract_text_from_std_pdf(pdf_path):
+    try:
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PdfReader(file)
+            for page_num in range(len(pdf_reader.pages)):
+                page = pdf_reader.pages[page_num]
+                text = page.extract_text()
+                if text.strip():  # If extracted text is not empty, it's likely not scanned
+                    return False
+    except Exception as e:
+        print(f"Error: {e}")
+
+
 # 从扫描的pdf文件中提取文本内容
 def extract_text_from_scanned_pdf(pdf_path):
 
