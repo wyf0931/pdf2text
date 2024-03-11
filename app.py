@@ -181,15 +181,7 @@ def task_info():
         })
 
 
-# 在应用程序启动时创建并启动后台线程
-@app.before_first_request
-def activate_background_thread():
-    db.create_all()
-    app.logger.info('app start and create tables finish.')
 
-    thread = threading.Thread(target=background_task, daemon=True)
-    thread.start()
-    app.logger.info('background task thread start success.')
 
 def background_task():
     with app.app_context():
@@ -217,6 +209,15 @@ def execute(task):
     extract(task.id)
     Task.finish(task.id)
     app.logger.info(f'task execute finish, id={task.id}')
+
+# 在应用程序启动时创建并启动后台线程
+with app.app_context():
+    db.create_all()
+    app.logger.info('app start and create tables finish.')
+
+    thread = threading.Thread(target=background_task, daemon=True)
+    thread.start()
+    app.logger.info('background task thread start success.')
 
 
 if __name__ == '__main__':
