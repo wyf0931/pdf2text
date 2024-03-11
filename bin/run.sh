@@ -6,3 +6,5 @@ docker run -d --name pdf2txt -p 8888:8888 \
   pdf2txt
 
 echo 'done.'
+
+docker ps -a
