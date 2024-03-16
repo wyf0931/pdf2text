@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, DateTime, Enum, Select, Column
+from sqlalchemy import Integer, String, DateTime, Enum, Select, Column,UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 import datetime
 import enum
@@ -96,6 +96,9 @@ class Page(db.Model):
     pdf_id = Column(Integer, nullable=False)
     page_num = Column(Integer, default=0)
     page_content = Column(String, default="")
+    __table_args__ = (  
+        UniqueConstraint('pdf_id', 'page_num', name='uc_pdf_id_page_num'),
+    )
 
     def to_dict(self):
         return {
