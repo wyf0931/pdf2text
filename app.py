@@ -56,7 +56,7 @@ def log_request_time(func):
 
 @app.route('/')
 def index():
-    return send_from_directory('static', 'index.html')
+    return jsonify({"code": 0, "msg": "welcome to pdf2txt!"})
 
 
 @app.route('/api/user/invite', methods=['POST'])
@@ -71,11 +71,11 @@ def invite_user():
 
     if not all([username, password, email, invite_code]):
         return jsonify({"error": "Missing required parameters"})
-    
+
     if invite_code != app.config['INIT_INVITE_CODE']:
         return jsonify({"error": "invite "})
-    
-    #check username exist
+
+    # check username exist
     u = User.get_by_username(username)
     if not u:
         User.register(username=username, email=email, password=password)
