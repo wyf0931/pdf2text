@@ -54,6 +54,30 @@ def index():
     return jsonify({"code": 0, "msg": "welcome to pdf2txt!"})
 
 
+@app.route('/api/statics/all', methods=['GET'])
+def statics_info():
+    return jsonify({
+        'data': {
+            'total_task': Task.query.count(),
+            'total_user': User.query.count(),
+            'total_pdf': Pdf.query.count(),
+            'total_page': Page.query.count()
+        }
+    })
+
+@app.route('/api/statics/pv_uv_incr', methods=['POST'])
+def record_pv_uv():
+    # 获取客户端的 MAC 地址或 IP 地址
+    client_mac = request.headers.get('X-Forwarded-For')
+    # 或者直接获取 IP 地址
+    client_ip = request.remote_addr
+    
+    # 在这里执行记录 PV、UV 的逻辑
+    # 可以将 client_mac 或 client_ip 存储到数据库或其他地方
+    app.logger.info(f'pv_uv_incr, mac={client_mac}, ip={client_ip}')
+    return jsonify({'code': 0})
+
+
 @app.route('/api/user/invite', methods=['POST'])
 def invite_user():
     data = request.json
