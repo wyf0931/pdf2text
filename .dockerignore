@@ -3,5 +3,5 @@ venv
 logs/*
 data/*.pdf
 instance/
-static/
 bin/
+ui/
