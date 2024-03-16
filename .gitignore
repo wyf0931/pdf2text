@@ -3,3 +3,4 @@ logs/*
 venv
 instance/
 data/*.pdf
+/ui/node_modules
