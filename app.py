@@ -65,7 +65,7 @@ def statics_info():
         }
     })
 
-@app.route('/api/statics/pv_uv_incr', methods=['POST'])
+@app.route('/api/statics/pv_uv_incr', methods=['GET', 'POST'])
 def record_pv_uv():
     # 获取客户端的 MAC 地址或 IP 地址
     client_mac = request.headers.get('X-Forwarded-For')
