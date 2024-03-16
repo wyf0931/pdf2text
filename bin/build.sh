@@ -1,3 +1,5 @@
+git pull
+
 echo 'stop container...'
 docker stop pdf2txt
 docker rm pdf2txt
