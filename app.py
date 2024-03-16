@@ -1,11 +1,6 @@
 from flask import Flask, request, jsonify, send_from_directory
 import os
-import tempfile
-from werkzeug.utils import secure_filename
-import pytesseract
-import pdf2image
 import hashlib
-from PIL import Image
 import logging
 from logging.handlers import TimedRotatingFileHandler
 import time
