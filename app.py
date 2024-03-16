@@ -184,11 +184,18 @@ def execute(task):
     if task.status == TaskStatus.CREATED.value:
         Task.start(task.id)
         app.logger.info(f'start execute task, id={task.id}')
-    else:
+        extract(task.id)
+        Task.finish(task.id)
+        app.logger.info(f'task execute finish, id={task.id}')
+
+    if task.status == TaskStatus.DOING.value:
         app.logger.info(f'continue execute task, id={task.id}')
-    extract(task.id)
-    Task.finish(task.id)
-    app.logger.info(f'task execute finish, id={task.id}')
+        extract(task.id)
+        Task.finish(task.id)
+        app.logger.info(f'task execute finish, id={task.id}')
+
+    if task.status == TaskStatus.DONE.value:
+        app.logger.info(f'task status is done, id={task.id}')
 
 
 # 在应用程序启动时创建并启动后台线程
