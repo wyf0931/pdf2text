@@ -1,9 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import Integer, String, DateTime, Enum, Select, Column,UniqueConstraint
+from sqlalchemy import Integer, String, DateTime, Enum, Select, Column, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 import datetime
 import enum
+from typing import Optional
 
 
 class Base(DeclarativeBase):
@@ -27,6 +28,22 @@ class User(db.Model):
     reg_time = Column(DateTime, default=datetime.datetime.utcnow)
     status = Column(Integer, default=UserStatus.OK)
 
+    @classmethod
+    def get_by_username(cls, username: str) -> Optional['User']:
+        return cls.query.filter_by(username=username).one_or_none()
+
+    @classmethod
+    def register(cls, username: str, email: str, password: str) -> None:
+        u = User(username=username, email=email, password=password)
+        db.session.add(u)
+        db.session.commit()
+
+    @classmethod
+    def modify_password(cls, username: str, new_pwd: str) -> None:
+        u = cls.query.filter_by(username=username).one_or_none()
+        u.password = new_pwd
+        db.session.commit()
+
 
 class TaskStatus(enum.Enum):
     CREATED = 0
@@ -42,12 +59,11 @@ class TaskStatus(enum.Enum):
 
 
 class Task(db.Model):
-    id = Column(String, primary_key=True) # pdf_hash
+    id = Column(String, primary_key=True)  # pdf_hash
     status = Column(Integer)
     create_time = Column(DateTime, default=datetime.datetime.utcnow)
     start_time = Column(DateTime)
     finish_time = Column(DateTime)
-
 
     @classmethod
     def start(cls, pdf_hash: str):
@@ -68,7 +84,7 @@ class Task(db.Model):
     @classmethod
     def get(cls, pdf_hash: str):
         return cls.query.filter_by(id=pdf_hash).first()
-    
+
     @classmethod
     def next(cls):
         t = cls.query.filter_by(status=TaskStatus.DOING.value).first()
@@ -76,7 +92,6 @@ class Task(db.Model):
             return t
         else:
             return cls.query.filter_by(status=TaskStatus.CREATED.value).order_by(cls.create_time).first()
-    
 
 
 class Pdf(db.Model):
@@ -88,7 +103,7 @@ class Pdf(db.Model):
 
     @classmethod
     def get_by_hash(cls, hash: str):
-        return cls.query.filter_by(hash = hash).first()
+        return cls.query.filter_by(hash=hash).first()
 
 
 class Page(db.Model):
@@ -96,7 +111,7 @@ class Page(db.Model):
     pdf_id = Column(Integer, nullable=False)
     page_num = Column(Integer, default=0)
     page_content = Column(String, default="")
-    __table_args__ = (  
+    __table_args__ = (
         UniqueConstraint('pdf_id', 'page_num', name='uc_pdf_id_page_num'),
     )
 
@@ -121,7 +136,8 @@ class Page(db.Model):
 
     @classmethod
     def get_max_page_num(cls, pdf_id: int):
-        page = cls.query.filter_by(pdf_id=pdf_id).order_by(cls.page_num.desc()).first()
+        page = cls.query.filter_by(pdf_id=pdf_id).order_by(
+            cls.page_num.desc()).first()
         if page:
             return page.page_num
         else:

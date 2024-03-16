@@ -10,7 +10,7 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 import time
 from utils import get_page_num
-from models import db, Task, Pdf, Page, TaskStatus
+from models import db, Task, Pdf, Page, User, TaskStatus
 import threading
 from core import extract
 
@@ -18,16 +18,20 @@ from core import extract
 app = Flask(__name__)
 
 # 设置最大请求体大小为 100MB
+app.config['INIT_INVITE_CODE'] = 'yhblsqt'
 app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100MB in bytes
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///pdf2txt.db"
 
 db.init_app(app)
 
+
 def setup_logging():
     # 配置日志记录器
-    log_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    log_formatter = logging.Formatter(
+        '%(asctime)s - %(levelname)s - %(message)s')
     # 创建 TimedRotatingFileHandler 实例，按天切分日志文件
-    log_handler = TimedRotatingFileHandler(filename='logs/stats.log', when='midnight', interval=1, backupCount=7)
+    log_handler = TimedRotatingFileHandler(
+        filename='logs/stats.log', when='midnight', interval=1, backupCount=7)
     log_handler.setFormatter(log_formatter)
 
     # 创建并配置 logger
@@ -36,6 +40,8 @@ def setup_logging():
     logger.addHandler(log_handler)
 
 # 定义一个装饰器函数，用于记录请求耗时
+
+
 def log_request_time(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()
@@ -47,9 +53,35 @@ def log_request_time(func):
         return response
     return wrapper
 
+
 @app.route('/')
 def index():
     return send_from_directory('static', 'index.html')
+
+
+@app.route('/api/user/invite', methods=['POST'])
+def invite_user():
+    data = request.json
+
+    # 获取请求参数
+    username = data.get('username')
+    password = data.get('password')
+    email = data.get('email')
+    invite_code = data.get('invite-code')
+
+    if not all([username, password, email, invite_code]):
+        return jsonify({"error": "Missing required parameters"})
+    
+    if invite_code != app.config['INIT_INVITE_CODE']:
+        return jsonify({"error": "invite "})
+    
+    #check username exist
+    u = User.get_by_username(username)
+    if not u:
+        User.register(username=username, email=email, password=password)
+        return jsonify({"code": 0})
+    else:
+        return jsonify({"code": 110, "msg": f"用户名（{username}）已经存在"})
 
 
 @app.route('/api/task/create', methods=['POST'])
@@ -162,7 +194,7 @@ def execute(task):
 # 在应用程序启动时创建并启动后台线程
 with app.app_context():
     setup_logging()
-    
+
     db.create_all()
     app.logger.info('app start and create tables finish.')
 
