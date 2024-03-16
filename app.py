@@ -200,6 +200,10 @@ def execute(task):
 
 # 在应用程序启动时创建并启动后台线程
 with app.app_context():
+    import random
+    lazy_init = random.randint(1, 10)
+    time.sleep(lazy_init)
+
     setup_logging()
 
     db.create_all()
