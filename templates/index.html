@@ -67,7 +67,7 @@
             } else {
               content = response.data.msg;
             }
-            $('#content').text(content.join('\n'));
+            $('#content').text(content);
           },
           error: function (xhr, status, error) {
             console.error(error);
