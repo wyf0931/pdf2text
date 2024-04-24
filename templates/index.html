@@ -101,6 +101,24 @@
 
         reader.readAsArrayBuffer(file);
 
+        function convertAndDisplayContent(fileHash) {
+          var eventSource = new EventSource('/api/convert/' + fileHash);
+
+          eventSource.onmessage = function (event) {
+            if (event.data === 'finish') {
+              console.log('==> event receive finish.')
+              eventSource.close();
+              return;
+            }
+            var text = atob(event.data); // 解码 base64 编码的文本
+            $('#content').append('<hr><p>' + text + '</p>');
+          };
+
+          eventSource.onerror = function (event) {
+            console.error('EventSource failed:', event);
+          };
+        }
+
         $.ajax({
           type: 'POST',
           url: '/api/upload',
@@ -108,13 +126,12 @@
           processData: false,
           contentType: false,
           success: function (response) {
-            var content = "";
             if (response.status == 0) {
-              content = response.data.text;
+              var fileHash = response.data.code;
+              convertAndDisplayContent(fileHash);
             } else {
-              content = response.data.msg;
+              console.error('Upload failed:', response.data.msg);
             }
-            $('#content').text(content);
           },
           error: function (xhr, status, error) {
             console.error(error);
