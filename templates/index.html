@@ -59,6 +59,12 @@
 
   <script>
     $(document).ready(function () {
+
+      $('#formFile').change(function () {
+        $('#content').empty();
+      });
+
+
       $('#btn-upload').click(function () {
 
         // 点击按钮后将其设置为 disabled
@@ -111,6 +117,7 @@
               return;
             }
             var text = atob(event.data); // 解码 base64 编码的文本
+            console.log(text);
             $('#content').append('<hr><p>' + text + '</p>');
           };
 
