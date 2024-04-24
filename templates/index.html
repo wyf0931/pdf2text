@@ -45,13 +45,17 @@
                 "md": 4,
                 "body": [
                   {
-                    "type": "input-file",
-                    "name": "file",
-                    "label": "PDF文件",
-                    "accept": ".pdf",
-                    "drag": true,
-                    "receiver": "/api/upload",
-
+                    "type": "form",
+                    "api": "/api/convert",
+                    "body": [
+                      {
+                        "type": "input-file",
+                        "name": "file",
+                        "label": "File",
+                        "accept": "*",
+                        "receiver": "/amis/api/upload/file"
+                      }
+                    ]
                   }, {
                     "type": "pdf-viewer",
                     "id": "pdf-viewer",
@@ -65,7 +69,7 @@
                 "body": {
                   "type": "panel",
                   "title": "面板标题",
-                  "body": "面板内容"
+                  "body": "${event.data.success.}"
                 }
               }
             ]
