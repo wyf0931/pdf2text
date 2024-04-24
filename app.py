@@ -70,7 +70,7 @@ def record_pv_uv():
     # 获取客户端的 MAC 地址或 IP 地址
     client_mac = request.headers.get('X-Forwarded-For')
     # 或者直接获取 IP 地址
-    client_ip = request.remote_addr
+    client_ip = request.headers.get('X-Real-IP')
     
     # 在这里执行记录 PV、UV 的逻辑
     # 可以将 client_mac 或 client_ip 存储到数据库或其他地方
