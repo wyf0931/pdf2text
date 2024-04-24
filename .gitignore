@@ -6,3 +6,4 @@ data/*.pdf
 /ui/node_modules
 .DS_Store
 .python-version
+nohup.out
