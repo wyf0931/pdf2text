@@ -25,12 +25,10 @@
     </nav>
     <div class="row">
       <div class="col-lg-4 col-md-12">
-        <div class="row">
+        <div class="row" style="margin-top: 1rem;">
+          <label for="formFile" class="form-label me-2">Upload PDF:</label>
           <form method="post" action="/api/upload" class="d-flex align-items-center">
-            <div class="mb-12">
-              <label for="formFile" class="form-label me-2">Upload PDF:</label>
-              <input class="form-control me-2" type="file" id="formFile" name="file">
-            </div>
+            <input class="form-control me-2" type="file" id="formFile" name="file">
             <button type="button" class="btn btn-info" id="btn-upload">Convert</button>
           </form>
         </div>
@@ -40,7 +38,7 @@
           </div>
         </div>
       </div>
-      <hr>
+      <hr style="margin-top: 1rem; border-style: dashed;">
       <div class="col-lg-8 col-md-12">
         <div>
           <pre id="content">
