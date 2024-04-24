@@ -12,6 +12,9 @@ from flask import render_template, Flask, jsonify, request, Response
 
 app = Flask(__name__)
 
+# 限制上传文件大小为 64MB
+app.config['MAX_CONTENT_LENGTH'] = 64 * 1024 * 1024
+
 # 获取环境变量file-path，如果不存在则使用系统临时文件夹路径
 save_dir = os.getenv('file-path', tempfile.gettempdir())
 os.makedirs(save_dir, exist_ok=True)
