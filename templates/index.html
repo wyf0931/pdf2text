@@ -14,17 +14,17 @@
 </head>
 
 <body>
-  <div class="container-fluid">
+  <div class="container-fluid" style="padding-left: 0rem; padding-right: 0rem;">
     <!-- Just an image -->
-    <nav class="navbar navbar-light bg-light">
+    <nav class="navbar navbar-dark bg-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">
           PDF2Text
         </a>
       </div>
     </nav>
-    <div class="row">
-      <div class="col-lg-4 col-md-12">
+    <div class="row" style="padding-left: 1rem; padding-right: 1rem;">
+      <div class="col-lg-6 col-md-12">
         <div class="row" style="margin-top: 1rem;">
           <label for="formFile" class="form-label me-2">Upload PDF:</label>
           <form method="post" action="/api/upload" class="d-flex align-items-center">
@@ -39,7 +39,7 @@
         </div>
       </div>
       <hr style="margin-top: 1rem; border-style: dashed;">
-      <div class="col-lg-8 col-md-12">
+      <div class="col-lg-10 col-md-12">
         <div>
           <pre id="content">
             loading text...
