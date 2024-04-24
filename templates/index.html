@@ -61,8 +61,13 @@
           processData: false,
           contentType: false,
           success: function (response) {
-            var text = response.text;
-            $('#content').text(text.join('\n'));
+            var content = "";
+            if (response.status == 0) {
+              content = response.data.text;
+            } else {
+              content = response.data.msg;
+            }
+            $('#content').text(content.join('\n'));
           },
           error: function (xhr, status, error) {
             console.error(error);
