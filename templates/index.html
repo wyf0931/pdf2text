@@ -1,84 +1,76 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>amis demo</title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <link rel="stylesheet" href="/static/plugins/amis/sdk.css" />
-  <link rel="stylesheet" href="/static/plugins/amis/helper.css" />
-  <link rel="stylesheet" href="/static/plugins/amis/iconfont.css" />
-  <!-- 这是默认主题所需的，如果是其他主题则不需要 -->
-  <!-- 从 1.1.0 开始 sdk.css 将不支持 IE 11，如果要支持 IE11 请引用这个 css，并把前面那个删了 -->
-  <!-- <link rel="stylesheet" href="sdk-ie11.css" /> -->
-  <!-- 不过 amis 开发团队几乎没测试过 IE 11 下的效果，所以可能有细节功能用不了，如果发现请报 issue -->
-  <style>
-    html,
-    body,
-    .app-wrapper {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+
+  <title>Free PDF file to Text!</title>
 </head>
 
 <body>
-  <div id="root" class="app-wrapper"></div>
-  <script src="/static/plugins/amis/sdk.js"></script>
-  <script type="text/javascript">
-    (function () {
-      let amis = amisRequire('amis/embed');
-      // 通过替换下面这个配置来生成不同页面
-      let amisJSON = {
-        type: 'page',
-        title: '<h2>PDF to Text - (Free!)</h2>',
-        body: [
-          {
-            "type": "grid",
-            "columns": [
-              {
-                "md": 4,
-                "body": [
-                  {
-                    "type": "form",
-                    "api": "/api/convert",
-                    "body": [
-                      {
-                        "type": "input-file",
-                        "name": "file",
-                        "label": "File",
-                        "accept": "*",
-                        "receiver": "/amis/api/upload/file"
-                      }
-                    ]
-                  }, {
-                    "type": "pdf-viewer",
-                    "id": "pdf-viewer",
-                    "name": "file",
-                    // "width": 500
-                  }
-                ]
-              },
-              {
-                "md": 8,
-                "body": {
-                  "type": "panel",
-                  "title": "面板标题",
-                  "body": "${event.data.success.}"
-                }
-              }
-            ]
-          }
+  <div class="container-fluid">
+    <!-- Just an image -->
+    <nav class="navbar navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          PDF2Text
+        </a>
+      </div>
+    </nav>
+    <div class="row">
+      <div class="col-4">
+        <form method="post" action="/api/upload">
+          <label for="formFile" class="form-label">Upload PDF:</label>
+          <input class="form-control" type="file" id="formFile" name="file">
+          <button type="button" class="btn btn-info">Convert</button>
+        </form>
+      </div>
+      <div class="col-8">
+        <div>
+          <pre id="content">
 
-        ]
-      };
-      let amisScoped = amis.embed('#root', amisJSON);
-    })();
+          </pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Optional JavaScript; choose one of the two! -->
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+  <!-- Option 1: Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+    crossorigin="anonymous"></script>
+
+  <script>
+    $(document).ready(function () {
+      $('#btn-upload').click(function () {
+        var form_data = new FormData($('form')[0]);
+
+        $.ajax({
+          type: 'POST',
+          url: '/api/upload',
+          data: form_data,
+          processData: false,
+          contentType: false,
+          success: function (response) {
+            var text = response.text;
+            $('#content').text(text.join('\n'));
+          },
+          error: function (xhr, status, error) {
+            console.error(error);
+          }
+        });
+      });
+    });
+
   </script>
 </body>
 
