@@ -25,11 +25,18 @@
     </nav>
     <div class="row">
       <div class="col-4">
-        <form method="post" action="/api/upload">
-          <label for="formFile" class="form-label">Upload PDF:</label>
-          <input class="form-control" type="file" id="formFile" name="file">
-          <button type="button" class="btn btn-info" id="btn-upload">Convert</button>
-        </form>
+        <div class="row">
+          <form method="post" action="/api/upload">
+            <label for="formFile" class="form-label">Upload PDF:</label>
+            <input class="form-control" type="file" id="formFile" name="file">
+            <button type="button" class="btn btn-info" id="btn-upload">Convert</button>
+          </form>
+        </div>
+        <div>
+          <div id="pdf-preview">
+
+          </div>
+        </div>
       </div>
       <div class="col-8">
         <div>
@@ -43,6 +50,8 @@
 
   <!-- Optional JavaScript; choose one of the two! -->
   <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js"></script>
+
 
   <!-- Option 1: Bootstrap Bundle with Popper -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
@@ -53,6 +62,42 @@
     $(document).ready(function () {
       $('#btn-upload').click(function () {
         var form_data = new FormData($('form')[0]);
+        var file_input = $('#formFile')[0];
+        var file = file_input.files[0];
+
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            var pdf_data = new Uint8Array(e.target.result);
+
+            // 加载 PDF 文件
+            PDFJS.getDocument(pdf_data).promise.then(function (pdf) {
+                // 获取第一页
+                pdf.getPage(1).then(function (page) {
+                    var scale = 1.5;
+                    var viewport = page.getViewport({ scale: scale });
+
+                    // 创建一个 Canvas 元素来展示 PDF 页面
+                    var canvas = document.createElement('canvas');
+                    var context = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+
+                    // 将 PDF 页面绘制到 Canvas 上
+                    var renderContext = {
+                        canvasContext: context,
+                        viewport: viewport
+                    };
+                    page.render(renderContext).promise.then(function () {
+                        // 将 Canvas 添加到页面上进行预览
+                        $('#pdf-preview').empty().append(canvas);
+                    });
+                });
+            });
+        };
+
+        reader.readAsArrayBuffer(file);
+
 
         $.ajax({
           type: 'POST',
