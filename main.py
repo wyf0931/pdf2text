@@ -72,7 +72,7 @@ def convert(file_hash):
             if scanned_flag:
                 # ocr
                 image = images[page_num]
-                text = pytesseract.image_to_string(image, lang='chi_sim+eng')
+                text = pytesseract.image_to_string(image, lang='eng+chi_sim')
             else:
                 # extract
                 page = doc.load_page(page_num)
