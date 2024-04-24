@@ -80,6 +80,8 @@
 
         var reader = new FileReader();
 
+        $('#content').text('uploading...');
+
         reader.onload = function (e) {
           var pdf_data = new Uint8Array(e.target.result);
 
@@ -143,7 +145,6 @@
             } else {
               console.error('Upload failed:', response.data.msg);
             }
-
           },
           error: function (xhr, status, error) {
             console.error(error);
@@ -151,6 +152,7 @@
           complete: function () {
             // 请求完成后取消按钮的 disabled 状态
             $('#btn-upload').prop('disabled', false);
+            $('#content').text('convert pdf to text ...');
           }
         });
       });
