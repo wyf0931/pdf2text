@@ -54,6 +54,36 @@ def index():
     return jsonify({"code": 0, "msg": "welcome to pdf2txt!"})
 
 
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    # 检查文件是否存在于请求中
+    if 'file' not in request.files:
+        return jsonify({'status': -1, 'msg': 'No file part'})
+
+    file = request.files['file']
+    # 检查文件名是否为空
+    if file.filename == '':
+        return jsonify({'status': -1, 'msg': 'No selected file'})
+
+    # 生成文件的哈希值作为新文件名
+    file_hash = hashlib.md5(file.read()).hexdigest()
+
+    # 保存文件到临时文件夹
+    save_path = os.path.join('pdf2txt', file_hash)
+    file.save(save_path)
+
+    # 返回JSON响应
+    response = {
+        'status': 0,
+        'msg': '',
+        'data': {
+            'value': f'/files/{file_hash}',
+            'name': file.filename
+        }
+    }
+    return jsonify(response)
+
+
 @app.route('/api/statics/all', methods=['GET'])
 def statics_info():
     return jsonify({
