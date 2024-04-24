@@ -24,7 +24,7 @@
       </div>
     </nav>
     <div class="row">
-      <div class="col-4">
+      <div class="col-lg-4 col-md-12">
         <div class="row">
           <form method="post" action="/api/upload">
             <label for="formFile" class="form-label">Upload PDF:</label>
@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <div class="col-8">
+      <div class="col-lg-8 col-md-12">
         <div>
           <pre id="content">
             ...
@@ -61,6 +61,10 @@
   <script>
     $(document).ready(function () {
       $('#btn-upload').click(function () {
+
+        // 点击按钮后将其设置为 disabled
+        $(this).prop('disabled', true);
+
         var form_data = new FormData($('form')[0]);
         var file_input = $('#formFile')[0];
         var file = file_input.files[0];
@@ -115,6 +119,10 @@
           },
           error: function (xhr, status, error) {
             console.error(error);
+          },
+          complete: function () {
+            // 请求完成后取消按钮的 disabled 状态
+            $('#btn-upload').prop('disabled', false);
           }
         });
       });
