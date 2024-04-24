@@ -84,30 +84,30 @@ def convert(file_hash):
     return Response(generate(), mimetype='text/event-stream')
 
 
-def extract(file_path: str) -> str:
-    doc = fitz.open(file_path)
-    scanned_flag = []
-    for page_num in range(doc.page_count):
-        scanned_flag.append(is_page_scanned(doc, page_num))
+# def extract(file_path: str) -> str:
+#     doc = fitz.open(file_path)
+#     scanned_flag = []
+#     for page_num in range(doc.page_count):
+#         scanned_flag.append(is_page_scanned(doc, page_num))
 
-    images = pdf2image.convert_from_path(file_path)
-    text = ''
-    for page_num in range(doc.page_count):
-        try:
-            if scanned_flag[page_num]:
-                # ocr
-                image = images[page_num]
-                text += pytesseract.image_to_string(image, lang='chi_sim+eng')
-            else:
-                # extract
-                page = doc.load_page(page_num)
-                text += page.get_text()
-            print(f'extract page success, pdf_hash={file_path}, current_page_num={
-                  page_num}, is_scanned={scanned_flag[page_num]}')
-        except Exception as e:
-            print('extract pdf text fail.', stack_info=True)
-    doc.close()
-    return text
+#     images = pdf2image.convert_from_path(file_path)
+#     text = ''
+#     for page_num in range(doc.page_count):
+#         try:
+#             if scanned_flag[page_num]:
+#                 # ocr
+#                 image = images[page_num]
+#                 text += pytesseract.image_to_string(image, lang='chi_sim+eng')
+#             else:
+#                 # extract
+#                 page = doc.load_page(page_num)
+#                 text += page.get_text()
+#             print(f'extract page success, pdf_hash={file_path}, current_page_num={
+#                   page_num}, is_scanned={scanned_flag[page_num]}')
+#         except Exception as e:
+#             print('extract pdf text fail.', stack_info=True)
+#     doc.close()
+#     return text
 
 
 def is_page_scanned(doc, page_num):
