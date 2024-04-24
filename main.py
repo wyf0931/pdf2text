@@ -34,9 +34,12 @@ def upload_file():
 
     # 保存文件到pdf2txt文件夹
     save_path = os.path.join(save_dir, file_hash)
-    file.seek(0)
-    file.save(save_path)
-    print(f'save_path===>{save_path}')
+    if not os.path.exists(save_path):
+        file.seek(0)
+        file.save(save_path)
+        print(f'save_path===>{save_path}')
+    else:
+        print(f'file has exists. path==>{save_path}')
 
     # 返回JSON响应
     response = {
