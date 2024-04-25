@@ -39,16 +39,27 @@
         </form>
       </div>
       <div class="row" style="margin-top: 1rem;">
-        <div id="pdf-preview" class="col-lg-4 d-none d-md-block">
-          PDF file preview.
+        <div class="col-lg-4 d-none d-md-block">
+          <div class="col-lg-10" id="pdf-preview">
+            PDF file preview.
+          </div>
+          <div class="col-lg-10">
+            <button type="button" class="btn btn-light" id="prev-page">prev-page</button>
+            <button type="button" class="btn btn-light" id="next-page">next-page</button>
+            <p id="page-number"></p>
+          </div>
+
         </div>
-        <div class="col-lg-8 col-md-12">
-          <pre id="content" style="padding-left: 1rem;">
+
+
+      </div>
+      <div class="col-lg-8 col-md-12">
+        <pre id="content" style="padding-left: 1rem;">
             <!-- loading text... -->
           </pre>
-        </div>
       </div>
     </div>
+  </div>
   </div>
 
   <!-- Optional JavaScript; choose one of the two! -->
@@ -71,6 +82,7 @@
 
       $('#btn-upload').click(function () {
 
+        $('#content').text('uploading...');
         // 点击按钮后将其设置为 disabled
         $(this).prop('disabled', true);
 
@@ -78,40 +90,90 @@
         var file_input = $('#formFile')[0];
         var file = file_input.files[0];
 
-        var reader = new FileReader();
+        // var reader = new FileReader();
+        // reader.onload = function (e) {
+        //   var pdf_data = new Uint8Array(e.target.result);
 
-        $('#content').text('uploading...');
+        //   // 加载 PDF 文件
+        //   pdfjsLib.getDocument(pdf_data).promise.then(function (pdf) {
+        //     // 获取第一页
+        //     pdf.getPage(1).then(function (page) {
+        //       var scale = 1.5;
+        //       var viewport = page.getViewport({ scale: scale });
+
+        //       // 创建一个 Canvas 元素来展示 PDF 页面
+        //       var canvas = document.createElement('canvas');
+        //       var context = canvas.getContext('2d');
+        //       canvas.height = viewport.height;
+        //       canvas.width = viewport.width;
+
+        //       // 将 PDF 页面绘制到 Canvas 上
+        //       var renderContext = {
+        //         canvasContext: context,
+        //         viewport: viewport
+        //       };
+        //       page.render(renderContext).promise.then(function () {
+        //         // 将 Canvas 添加到页面上进行预览
+        //         $('#pdf-preview').empty().append(canvas);
+        //       });
+        //     });
+        //   });
+        // };
+        // reader.readAsArrayBuffer(file);
+        var currentPage = 1;
+        var totalPages = 0;
+
+        function renderPage(pageNumber) {
+          pdf.getPage(pageNumber).then(function (page) {
+            var scale = 1.5;
+            var viewport = page.getViewport({ scale: scale });
+
+            var canvas = document.createElement('canvas');
+            var context = canvas.getContext('2d');
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            var renderContext = {
+              canvasContext: context,
+              viewport: viewport
+            };
+            page.render(renderContext).promise.then(function () {
+              $('#pdf-preview').empty().append(canvas);
+            });
+          });
+        }
+
+        function loadPdf(pdf_data) {
+          pdfjsLib.getDocument(pdf_data).promise.then(function (pdf) {
+            totalPages = pdf.numPages;
+            renderPage(currentPage);
+          });
+        }
+
+        $('#prev-page').click(function () {
+          if (currentPage > 1) {
+            currentPage--;
+            renderPage(currentPage);
+            updatePageNumber();
+          }
+        });
+
+        $('#next-page').click(function () {
+          if (currentPage < totalPages) {
+            currentPage++;
+            renderPage(currentPage);
+            updatePageNumber();
+          }
+        });
+
+        function updatePageNumber() {
+          $('#page-number').text('Page ' + currentPage + ' of ' + totalPages);
+        }
 
         reader.onload = function (e) {
           var pdf_data = new Uint8Array(e.target.result);
-
-          // 加载 PDF 文件
-          pdfjsLib.getDocument(pdf_data).promise.then(function (pdf) {
-            // 获取第一页
-            pdf.getPage(1).then(function (page) {
-              var scale = 1.5;
-              var viewport = page.getViewport({ scale: scale });
-
-              // 创建一个 Canvas 元素来展示 PDF 页面
-              var canvas = document.createElement('canvas');
-              var context = canvas.getContext('2d');
-              canvas.height = viewport.height;
-              canvas.width = viewport.width;
-
-              // 将 PDF 页面绘制到 Canvas 上
-              var renderContext = {
-                canvasContext: context,
-                viewport: viewport
-              };
-              page.render(renderContext).promise.then(function () {
-                // 将 Canvas 添加到页面上进行预览
-                $('#pdf-preview').empty().append(canvas);
-              });
-            });
-          });
+          loadPdf(pdf_data);
         };
-
-        reader.readAsArrayBuffer(file);
 
         function convertAndDisplayContent(fileHash) {
           var eventSource = new EventSource('/api/convert/' + fileHash);
