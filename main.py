@@ -8,7 +8,8 @@ import pdf2image
 from PIL import Image
 from io import BytesIO
 import base64
-from flask import render_template, Flask, jsonify, request, Response
+import sys
+from flask import render_template, Flask, jsonify, request, Response, stream_with_context
 
 app = Flask(__name__)
 
@@ -84,36 +85,16 @@ def convert(file_hash):
             # 发送事件
             yield 'data: {}\n\n'.format(encoded_text)
 
+            # 发送事件
+            yield 'data: {}\n\n'.format(encoded_text)
+            # 强制刷新输出缓冲区，使客户端可以立即收到数据
+            sys.stdout.flush()
+
         # 发送完成事件
         yield 'data: finish\n\n'
-    # 返回事件流
-    return Response(generate(), mimetype='text/event-stream')
 
-
-# def extract(file_path: str) -> str:
-#     doc = fitz.open(file_path)
-#     scanned_flag = []
-#     for page_num in range(doc.page_count):
-#         scanned_flag.append(is_page_scanned(doc, page_num))
-
-#     images = pdf2image.convert_from_path(file_path)
-#     text = ''
-#     for page_num in range(doc.page_count):
-#         try:
-#             if scanned_flag[page_num]:
-#                 # ocr
-#                 image = images[page_num]
-#                 text += pytesseract.image_to_string(image, lang='chi_sim+eng')
-#             else:
-#                 # extract
-#                 page = doc.load_page(page_num)
-#                 text += page.get_text()
-#             print(f'extract page success, pdf_hash={file_path}, current_page_num={
-#                   page_num}, is_scanned={scanned_flag[page_num]}')
-#         except Exception as e:
-#             print('extract pdf text fail.', stack_info=True)
-#     doc.close()
-#     return text
+    # 返回事件流，使用 stream_with_context 包装生成器
+    return Response(stream_with_context(generate()), mimetype='text/event-stream')
 
 
 def is_page_scanned(doc, page_num):
